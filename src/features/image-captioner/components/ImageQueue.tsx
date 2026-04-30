@@ -2,6 +2,7 @@ import type { RefObject } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AlertCircle, ImagePlus, WandSparkles } from 'lucide-react';
 import type { UploadedImage } from '../types';
+import { CameraCapture } from './CameraCapture';
 import { ImageCard } from './ImageCard';
 
 interface ImageQueueProps {
@@ -39,23 +40,28 @@ export function ImageQueue({
           <p className="mt-1 text-sm font-semibold text-slate-500">{images.length} image{images.length === 1 ? '' : 's'} in the queue</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-row">
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50 sm:px-4"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-xs font-black text-slate-700 transition hover:bg-slate-50 min-[420px]:gap-2 min-[420px]:text-sm sm:px-4"
           >
             <ImagePlus size={17} />
-            Add images
+            <span>Add</span>
           </button>
+          <CameraCapture
+            onCapture={(file) => onFilesSelected([file])}
+            buttonLabel="Camera"
+            buttonClassName="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-xs font-black text-slate-700 transition hover:bg-slate-50 min-[420px]:gap-2 min-[420px]:text-sm sm:px-4"
+          />
           <button
             type="button"
             onClick={onGenerateAll}
             disabled={!canGenerate}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 py-2.5 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-2 py-2.5 text-xs font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 min-[420px]:gap-2 min-[420px]:text-sm sm:px-4"
           >
             <WandSparkles size={17} />
-            Generate all
+            <span>Generate</span>
           </button>
         </div>
       </div>

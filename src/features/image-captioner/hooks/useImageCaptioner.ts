@@ -2,12 +2,17 @@ import { useCallback, useEffect, useState } from 'react';
 import { generateCaption } from '../services/captionApi';
 import type { CaptionHistoryItem, ToastMessage, UploadedImage } from '../types';
 import { readImageFile, validateImageFiles } from '../utils/files';
+import { loadCaptionHistory, saveCaptionHistory, trimCaptionHistory } from '../utils/historyStorage';
 
 export function useImageCaptioner() {
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const [history, setHistory] = useState<CaptionHistoryItem[]>([]);
+  const [history, setHistory] = useState<CaptionHistoryItem[]>(() => loadCaptionHistory());
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
+
+  useEffect(() => {
+    saveCaptionHistory(history);
+  }, [history]);
 
   useEffect(() => {
     if (!toast) return;
@@ -65,17 +70,20 @@ export function useImageCaptioner() {
         return item.id === image.id ? { ...item, status: 'complete', caption } : item;
       }));
 
-      setHistory((current) => [{
-        id: `${Date.now()}-${image.id}`,
-        image: image.url,
-        caption,
-        date: new Intl.DateTimeFormat(undefined, {
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        }).format(new Date()),
-      }, ...current]);
+      setHistory((current) => trimCaptionHistory([
+        {
+          id: `${Date.now()}-${image.id}`,
+          image: image.url,
+          caption,
+          date: new Intl.DateTimeFormat(undefined, {
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+          }).format(new Date()),
+        },
+        ...current,
+      ]));
     } catch (captionError) {
       const message = captionError instanceof Error
         ? captionError.message

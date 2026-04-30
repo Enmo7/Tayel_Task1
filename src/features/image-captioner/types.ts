@@ -1,4 +1,5 @@
 export type UploadStatus = 'pending' | 'analyzing' | 'complete' | 'error';
+export type CameraStatus = 'idle' | 'requesting' | 'ready' | 'denied' | 'unavailable' | 'error';
 
 export interface UploadedImage {
   id: string;

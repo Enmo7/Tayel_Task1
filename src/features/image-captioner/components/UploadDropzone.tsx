@@ -1,6 +1,7 @@
 import type { ChangeEvent, DragEvent, RefObject } from 'react';
 import { motion } from 'motion/react';
 import { ImagePlus, UploadCloud } from 'lucide-react';
+import { CameraCapture } from './CameraCapture';
 
 interface UploadDropzoneProps {
   inputRef: RefObject<HTMLInputElement | null>;
@@ -46,9 +47,15 @@ export function UploadDropzone({ inputRef, onFilesSelected }: UploadDropzoneProp
           <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-slate-500 sm:mt-3">
             Upload JPG, PNG, or WebP files. The app will read the image and produce a clean one-sentence caption.
           </p>
-          <div className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-bold text-white shadow-sm sm:mt-6">
-            <ImagePlus size={17} />
-            Browse images
+          <div className="mt-5 grid gap-2 min-[420px]:grid-cols-2 sm:mt-6">
+            <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-bold text-white shadow-sm">
+              <ImagePlus size={17} />
+              Browse images
+            </span>
+            <CameraCapture
+              onCapture={(file) => onFilesSelected([file])}
+              buttonClassName="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            />
           </div>
         </div>
       </div>

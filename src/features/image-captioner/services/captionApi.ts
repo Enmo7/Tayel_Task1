@@ -9,10 +9,15 @@ interface CaptionApiResponse {
 }
 
 const captionApiUrl = import.meta.env.VITE_CAPTION_API_URL as string | undefined;
+const mockCaptions = [
+  'A clean visual snapshot with clear structure, strong contrast, and content ready to be described.',
+  'An uploaded image prepared for analysis, with the main subject and visual details ready for captioning.',
+  'A captured moment with enough visual context to generate a concise and useful caption.',
+] as const;
 
 export async function generateCaption({ imageUrl, mimeType, fileName }: CaptionRequest): Promise<string> {
   if (!captionApiUrl) {
-    throw new Error('Missing VITE_CAPTION_API_URL.');
+    return generateMockCaption(fileName);
   }
 
   const response = await fetch(captionApiUrl, {
@@ -31,6 +36,19 @@ export async function generateCaption({ imageUrl, mimeType, fileName }: CaptionR
   }
 
   return data.caption;
+}
+
+async function generateMockCaption(fileName: string): Promise<string> {
+  await new Promise((resolve) => window.setTimeout(resolve, 1400));
+
+  const captionIndex = Math.abs(hashText(fileName)) % mockCaptions.length;
+  return mockCaptions[captionIndex];
+}
+
+function hashText(text: string): number {
+  return Array.from(text).reduce((hash, character) => {
+    return ((hash << 5) - hash) + character.charCodeAt(0);
+  }, 0);
 }
 
 function buildCaptionFormData({ imageUrl, mimeType, fileName }: CaptionRequest): FormData {
