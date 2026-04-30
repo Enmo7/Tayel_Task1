@@ -1,0 +1,6 @@
+{
+  "name": "The Image Captioner",
+  "description": "Upload an image and let AI generate a smart, one-sentence caption describing it.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
