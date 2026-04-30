@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  api:
+    # Build the image using the Dockerfile in the current directory
+    build: .
+    # Map port 8000 on the host machine to port 8000 in the container
+    ports:
+      - "8000:8000"
+    # Mount the current directory to /app in the container
+    # This allows live-reloading during development without rebuilding the image
+    volumes:
+      - .:/app
+    # Override the default CMD to enable hot-reloading for development
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
