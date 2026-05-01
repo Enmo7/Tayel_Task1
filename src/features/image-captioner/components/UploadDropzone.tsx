@@ -20,7 +20,7 @@ export function UploadDropzone({ inputRef, onFilesSelected }: UploadDropzoneProp
       event.target.value = '';
     }
   };
-
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}

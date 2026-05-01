@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef,useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
 import { AppHeader } from '../shared/components/AppHeader';
@@ -13,10 +13,12 @@ import {
 const trustMarkers = ['Subject aware', 'Mood detection', 'Copy ready'] as const;
 
 export default function App() {
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     images,
     history,
+    loading,
     error,
     toast,
     addFiles,
@@ -24,7 +26,12 @@ export default function App() {
     generateForImage,
     generateAll,
     copyCaption,
+    loadHistory
   } = useImageCaptioner();
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
@@ -78,7 +85,7 @@ export default function App() {
           </div>
         </section>
 
-        <HistorySidebar history={history} onCopy={copyCaption} />
+        <HistorySidebar history={history} loading={loading} onCopy={copyCaption} />
       </main>
 
       <Toast toast={toast} />

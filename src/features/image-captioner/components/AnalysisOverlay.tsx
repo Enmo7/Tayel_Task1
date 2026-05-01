@@ -11,7 +11,7 @@ export function AnalysisOverlay() {
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px]" />
       <motion.div
-        className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cyan-300/0 via-cyan-300/45 to-cyan-300/0 mix-blend-screen"
+        className="absolute inset-x-0 top-0 h-24 bg-linear-gradient-to-b from-cyan-300/0 via-cyan-300/45 to-cyan-300/0 mix-blend-screen"
         animate={{ y: ['-35%', '430%'] }}
         transition={{ duration: 2.1, repeat: Infinity, ease: 'easeInOut' }}
       />

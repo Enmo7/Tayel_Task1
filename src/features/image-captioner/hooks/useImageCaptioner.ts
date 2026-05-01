@@ -1,14 +1,18 @@
+import { compressImageFile } from './../utils/imageUtils';
 import { useCallback, useEffect, useState } from 'react';
 import { generateCaption } from '../services/captionApi';
-import type { CaptionHistoryItem, ToastMessage, UploadedImage } from '../types';
-import { readImageFile, validateImageFiles } from '../utils/files';
+import type { ApiResponse, CaptionHistoryItem, ToastMessage, UploadedImage } from '../types';
+import {  readImageFile, validateImageFiles } from '../utils/files';
 import { loadCaptionHistory, saveCaptionHistory, trimCaptionHistory } from '../utils/historyStorage';
-
+import { useApi } from './useApi';
+import { generateCaptionApi } from '../services/captionService';
+import { getHistory } from '../services/historyService';
 export function useImageCaptioner() {
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const [history, setHistory] = useState<CaptionHistoryItem[]>(() => loadCaptionHistory());
+  const [history, setHistory] = useState<CaptionHistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
+  const { request, loading } = useApi();
 
   useEffect(() => {
     saveCaptionHistory(history);
@@ -54,49 +58,53 @@ export function useImageCaptioner() {
     setError(null);
   }, []);
 
+  const loadHistory = useCallback(async () => {
+    try {
+     const data = await getHistory(request);
+    const latestFive = data
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+
+      setHistory(latestFive);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [request]);
+
   const generateForImage = useCallback(async (image: UploadedImage) => {
-    setImages((current) => current.map((item) => {
-      return item.id === image.id ? { ...item, status: 'analyzing', error: undefined } : item;
-    }));
+    setImages((current) => current.map((item) =>
+      item.id === image.id ? { ...item, status: 'analyzing', error: undefined } : item
+    ));
 
     try {
-      const caption = await generateCaption({
-        imageUrl: image.url,
-        mimeType: image.type,
-        fileName: image.name,
-      });
+      
+      const response = await fetch(image.url);
+      const blob = await response.blob();
+      const originalFile = new File([blob], image.name, { type: image.type });
+      
+      const compressedFile = await compressImageFile(originalFile);
+ 
+      const formData = new FormData();
+      formData.append('image', compressedFile); 
+      formData.append('mimeType', image.type);
 
-      setImages((current) => current.map((item) => {
-        return item.id === image.id ? { ...item, status: 'complete', caption } : item;
-      }));
+      const caption = await generateCaptionApi(request, formData);
+      console.log(caption);
+      
+      setImages((current) => current.map((item) =>
+        item.id === image.id ? { ...item, status: 'complete', caption: caption } : item
+      ));
 
-      setHistory((current) => trimCaptionHistory([
-        {
-          id: `${Date.now()}-${image.id}`,
-          image: image.url,
-          caption,
-          date: new Intl.DateTimeFormat(undefined, {
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-          }).format(new Date()),
-        },
-        ...current,
-      ]));
-    } catch (captionError) {
-      const message = captionError instanceof Error
-        ? captionError.message
-        : 'Failed to generate caption. Try again.';
+      await loadHistory();
 
-      setImages((current) => current.map((item) => {
-        return item.id === image.id
-          ? { ...item, status: 'error', error: message }
-          : item;
-      }));
-      showToast('Caption generation failed.', 'error');
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'failed to generate Image caption.';
+      setImages((current) => current.map((item) =>
+        item.id === image.id ? { ...item, status: 'error', error: message } : item
+      ));
+      showToast(message, 'error');
     }
-  }, [showToast]);
+  }, [request, showToast]);
 
   const generateAll = useCallback(() => {
     images
@@ -111,7 +119,9 @@ export function useImageCaptioner() {
 
   return {
     images,
-    history,
+    history, 
+    loadHistory,
+    loading,
     error,
     toast,
     addFiles,
