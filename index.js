@@ -2,8 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import captionRouter from './src/modules/caption/caption.router';
-import connectDB from './DB/connection';
+import { fileURLToPath } from 'url';
+import captionRouter from './src/modules/caption/caption.router.js';
+import connectDB from './DB/connection.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 

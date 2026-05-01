@@ -1,10 +1,9 @@
-import { Request, Response } from 'express';
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
-import captionModel from '../../../DB/models/caption.model';
+import captionModel from '../../../DB/models/caption.model.js';
 
-export const generateCaption = async (req: Request, res: Response): Promise<void> => {
+export const generateCaption = async (req, res) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No image file provided.' });
@@ -21,16 +20,20 @@ export const generateCaption = async (req: Request, res: Response): Promise<void
     const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
 
     let caption = '';
+    let englishCaption = '';
+    let arabicCaption = '';
 
     // If AI API is not configured yet, return a mock response
     if (!aiApiUrl) {
       console.log('AI_API_URL not set. Returning mock response.');
       await new Promise(resolve => setTimeout(resolve, 1500));
-      caption = 'This is a mock caption from the backend.';
+      englishCaption = 'This is a mock caption from the backend.';
+      arabicCaption = 'هذا تعليق تجريبي من الخادم.';
+      caption = `${englishCaption} | ${arabicCaption}`;
     } else {
       // Forward the image to the AI API
       const formData = new FormData();
-      formData.append('image', fs.createReadStream(req.file.path), {
+      formData.append('file', fs.createReadStream(req.file.path), {
         filename: req.file.originalname,
         contentType: req.file.mimetype || mimeType,
       });
@@ -42,29 +45,33 @@ export const generateCaption = async (req: Request, res: Response): Promise<void
         },
       });
 
-      caption = aiResponse.data.caption;
+      englishCaption = aiResponse.data.english_caption;
+      arabicCaption = aiResponse.data.arabic_caption;
 
-      if (!caption) {
+      if (!englishCaption || !arabicCaption) {
           res.status(500).json({ error: 'Invalid response from AI API.' });
           return;
       }
+      
+      caption = `${englishCaption} | ${arabicCaption}`;
     }
 
     // Save to database
     await captionModel.create({
         imageUrl,
-        caption
+        englishCaption,
+        arabicCaption
     });
 
     res.json({ caption });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error generating caption:', error.message || error);
     res.status(500).json({ error: 'Failed to generate caption.' });
   }
 };
 
-export const getHistory = async (req: Request, res: Response): Promise<void> => {
+export const getHistory = async (req, res) => {
     try {
         const history = await captionModel.find().sort({ createdAt: -1 });
         
@@ -72,7 +79,7 @@ export const getHistory = async (req: Request, res: Response): Promise<void> => 
         const formattedHistory = history.map(item => ({
             id: item._id,
             image: item.imageUrl,
-            caption: item.caption,
+            caption: `${item.englishCaption} | ${item.arabicCaption}`,
             date: new Intl.DateTimeFormat('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -82,7 +89,7 @@ export const getHistory = async (req: Request, res: Response): Promise<void> => 
         }));
 
         res.json({ history: formattedHistory });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error fetching history:', error.message || error);
         res.status(500).json({ error: 'Failed to fetch history.' });
     }
