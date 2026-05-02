@@ -1,6 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
+import path from 'path';
 import captionModel from '../../../DB/models/caption.model.js';
 
 export const generateCaption = async (req, res) => {
@@ -92,5 +93,32 @@ export const getHistory = async (req, res) => {
     } catch (error) {
         console.error('Error fetching history:', error.message || error);
         res.status(500).json({ error: 'Failed to fetch history.' });
+    }
+};
+
+export const deleteHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const item = await captionModel.findById(id);
+        
+        if (!item) {
+            return res.status(404).json({ error: 'History item not found.' });
+        }
+
+        // Try to delete the physical image file to save space
+        if (item.imageUrl) {
+            const filename = item.imageUrl.split('/').pop();
+            const filePath = path.join(process.cwd(), 'uploads', filename);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+
+        await captionModel.findByIdAndDelete(id);
+
+        res.json({ message: 'History item deleted successfully.', id });
+    } catch (error) {
+        console.error('Error deleting history:', error.message || error);
+        res.status(500).json({ error: 'Failed to delete history.' });
     }
 };
