@@ -1,6 +1,8 @@
 // import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:frist_project/widgets/image_res.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frist_project/widgets/feature_text.dart';
+import 'package:frist_project/widgets/recent_caption.dart';
 import 'package:frist_project/widgets/image_widget.dart';
 import 'package:gap/gap.dart';
 
@@ -15,81 +17,119 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF282828),
-        elevation: 1,
+        backgroundColor: Colors.white,
+        elevation: 2,
         title: Row(
           children: [
-            Image(
-              width: 100,
-              height: 100,
-              image: AssetImage("assets/images/tayel.png"),
+            CircleAvatar(
+              backgroundColor: Colors.black,
+              child: FaIcon(FontAwesomeIcons.image, color: Colors.white),
             ),
             Gap(10),
-            Text(
-              "Image Captioner",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 25,
-              ),
+            Column(
+              children: [
+                Text(
+                  "Image Captioner",
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 15),
+                  child: Text(
+                    "Vision notes in seconds",
+                    style: TextStyle(fontSize: 14, color: Color(0xff414141)),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10, bottom: 7),
+            child: Container(
+              width: 110,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.blueGrey.withOpacity(0.1),
+                border: Border.all(color: Colors.white38, width: 1.5),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 7),
+                child: Row(
+                  children: [
+                    FaIcon(
+                      FontAwesomeIcons.wandMagicSparkles,
+                      size: 15,
+                      color: Colors.blue,
+                    ),
+                    Text("AI assisted"),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: ListView(
         children: [
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 30),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Text.rich(
-                        textAlign: TextAlign.center,
-                        TextSpan(
-                          style: TextStyle(
-                            fontSize: 40,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                          ),
-                          text: "Turn any image\ninto a ",
-                          children: [
-                            TextSpan(
-                              text: "smart\ncaption \n",
-                              style: TextStyle(color: Colors.deepPurpleAccent),
-                            ),
-                            TextSpan(
-                              style: TextStyle(
-                                color: Color(0xFF808080),
-                                fontSize: 20,
-                                height: 1.5,
-                              ),
-                              text:
-                                  "Upload an image and let AI descripe\n it in one clear sentence",
-                            ),
-                          ],
-                        ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 20.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "VISUAL CAPTION STUDIO",
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
-                      Column(),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Turn images into crisp captions.",
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        height: 1.1,
+                      ),
+                    ),
+
+                    Text(
+                      "Upload one or more images, watch the analyzer inspect visual regions, then copy the typed caption when it lands.",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 13,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Gap(10),
               ImageWidget(),
               Gap(15),
               Container(
+                width: double.infinity,
+                margin: EdgeInsetsGeometry.only(left: 5),
                 decoration: BoxDecoration(),
                 child: Column(
                   children: [
-                    Column(
+                    Row(
                       children: [
-                        featureText(Icons.done, "High Fidelity AI"),
-                        featureText(Icons.done, "Optimized for Social"),
-                        featureText(Icons.done, "Private & Secure"),
+                        featureText(Icons.done, "SUBJECT\nAWARE"),
+                        featureText(Icons.done, "MOOD\nDETECTION"),
+                        featureText(Icons.done, "COPY READY"),
                       ],
                     ),
                   ],
@@ -103,24 +143,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
-
-Widget featureText(IconData icon, String text) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey),
-        ),
-        child: Icon(icon, color: Colors.blueGrey, size: 15),
-      ),
-      SizedBox(width: 8, height: 40),
-      Text(text, style: TextStyle(color: Colors.blueGrey, fontSize: 16)),
-    ],
-  );
 }
