@@ -1,10 +1,15 @@
 import 'package:flutter/foundation.dart';
 
 class RecentCaptionData {
-  final String imagePath;
+  final String? imagePath;
+  final String? imageUrl;
   final String caption;
 
-  RecentCaptionData({required this.imagePath, required this.caption});
+  RecentCaptionData({
+    this.imagePath,
+    this.imageUrl,
+    required this.caption,
+  });
 }
 
 /// A global notifier that holds the recent caption data

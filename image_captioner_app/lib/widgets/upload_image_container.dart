@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:frist_project/data/services/image_caption.dart';
 import 'package:frist_project/services/history_notifier.dart';
 
 class UploadImageContainer extends StatefulWidget {
@@ -23,31 +24,37 @@ class UploadImageContainer extends StatefulWidget {
 }
 
 class _UploadImageContainerState extends State<UploadImageContainer> {
+  final ImageCaption _imageCaption = ImageCaption();
   bool _isGenerating = false;
   String? _generatedCaption;
 
   void _handleGenerate() async {
-    if (_isGenerating) return;
+    if (_isGenerating || widget.image == null) return;
 
     setState(() {
       _isGenerating = true;
       _generatedCaption = null;
     });
 
-    // Simulate network delay for the animation
-    await Future.delayed(const Duration(seconds: 2));
-
     if (widget.onGeneratePressed != null) {
       widget.onGeneratePressed!();
     }
 
+    final response = await _imageCaption.getImageCaption(widget.image!);
+    print("this the image cap response $response");
     if (mounted) {
       setState(() {
         _isGenerating = false;
-        _generatedCaption =
-            "A stunningly vibrant macaw parrot with red, yellow, and blue feathers, looking backward over its shoulder against a dark, blurred natural background.";
+
+        if (response != null && response.caption != null) {
+          _generatedCaption = response.caption;
+          _saveToHistory();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to generate caption.')),
+          );
+        }
       });
-      _saveToHistory();
     }
   }
 
@@ -323,7 +330,8 @@ class _UploadImageContainerState extends State<UploadImageContainer> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Row(
                                         children: [

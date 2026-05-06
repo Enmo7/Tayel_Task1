@@ -52,7 +52,9 @@ class _ImageWidgetState extends State<ImageWidget> {
                           ),
                           child: IconButton(
                             onPressed: () async {
-                              await imageshandler.pickImage(ImageSource.gallery);
+                              await imageshandler.pickImage(
+                                ImageSource.gallery,
+                              );
                               setState(() {});
                             },
                             icon: const Icon(
